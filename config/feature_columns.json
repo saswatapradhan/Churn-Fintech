@@ -1,0 +1,22 @@
+[
+  "country_ES",
+  "country_FR",
+  "country_IT",
+  "country_NL",
+  "country_UK",
+  "industry_Hospitality",
+  "industry_Retail",
+  "industry_Services",
+  "industry_Subscription",
+  "account_age_months",
+  "monthly_tpv",
+  "tpv_trend_3m_pct",
+  "txn_count_monthly",
+  "avg_ticket_size",
+  "num_products_used",
+  "login_freq_monthly",
+  "disputes_90d",
+  "chargebacks_90d",
+  "support_tickets_90d",
+  "failed_txn_ratio"
+]

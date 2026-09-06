@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+.pytest_cache/
+mlruns/
+*.pkl
+.DS_Store
+flagged/
+paypal_smb_eu_churn.csv
+!src/serving/model/preprocessing.pkl
+notebooks/mlflow.db

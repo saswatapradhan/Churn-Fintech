@@ -1,0 +1,102 @@
+name: Build, Test and Push PayPal SMB Churn Image
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-test-push:
+    name: Test, Build and Push Docker Image
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # ============================================================
+      # 1. CHECKOUT CODE
+      # ============================================================
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ============================================================
+      # 2. SETUP PYTHON
+      # ============================================================
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # ============================================================
+      # 3. INSTALL DEPENDENCIES
+      # ============================================================
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # ============================================================
+      # 4. RUN DATA VALIDATION (Great Expectations gate)
+      # ============================================================
+      - name: Run data validation
+        run: |
+          python src/utils/validate_data.py
+
+      # ============================================================
+      # 5. RUN AUTOMATED TESTS
+      # ============================================================
+      - name: Run tests
+        run: |
+          pytest tests/ -v
+
+      # ============================================================
+      # 6. RUN ML PIPELINE (preprocess -> features -> train)
+      # ============================================================
+      - name: Run preprocessing and feature engineering
+        run: |
+          python -m src.data.preprocess
+          python -m src.features.build_features
+
+      - name: Train model
+        run: |
+          python -m src.models.train
+
+      # ============================================================
+      # 7. MODEL QUALITY GATE
+      # ============================================================
+      - name: Run model quality gate
+        run: |
+          python scripts/model_quality_gate.py
+
+      # ============================================================
+      # 8. SETUP DOCKER BUILDX
+      # ============================================================
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # ============================================================
+      # 9. LOGIN TO DOCKER HUB
+      # ============================================================
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # ============================================================
+      # 10. BUILD AND PUSH DOCKER IMAGE
+      # ============================================================
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/paypal-smb-churn-fastapi:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # ============================================================
+      # 11. LOGOUT
+      # ============================================================
+      - name: Logout from Docker Hub
+        run: docker logout
