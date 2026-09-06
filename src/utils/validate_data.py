@@ -7,7 +7,7 @@ import pandas as pd
 import great_expectations as gx
 import json
 
-df = pd.read_csv('/mnt/user-data/outputs/paypal_smb_eu_churn.csv')
+df = pd.read_csv('data/raw/paypal_smb_eu_churn_raw.csv')
 
 context = gx.get_context()
 data_source = context.data_sources.add_pandas("pandas_source")
@@ -66,7 +66,7 @@ summary = {
 
 print(json.dumps(summary, indent=2))
 
-with open('/mnt/user-data/outputs/data_validation_report.json', 'w') as f:
+with open('artifacts/data_validation_report.json', 'w') as f:
     json.dump(summary, f, indent=2)
 
 if not summary["success"]:
