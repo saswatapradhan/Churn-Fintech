@@ -6,6 +6,7 @@ and exposes a single function to score new SMB account data.
 import joblib
 import pandas as pd
 from xgboost import XGBClassifier
+from src.utils.prediction_logger import log_prediction
 
 MODEL_PATH = "src/serving/model/model.xgb"
 PREPROCESSOR_PATH = "src/serving/model/preprocessing.pkl"
@@ -38,7 +39,7 @@ def add_derived_features(df: pd.DataFrame) -> pd.DataFrame:
     df["is_sharp_decline"] = (df["tpv_trend_3m_pct"] < -30).astype(int)
     return df
 
-def predict_churn(record: dict) -> dict:
+def predict_churn(record: dict,source: str = "api") -> dict:
     model, preprocessor = load_artifacts()
 
     df = pd.DataFrame([record])
@@ -56,11 +57,16 @@ def predict_churn(record: dict) -> dict:
     proba = model.predict_proba(X_df)[0][1]
     prediction = int(proba >= 0.5)
 
-    return {
+    result = {
         "churn_prediction": prediction,
         "churn_probability": round(float(proba), 4),
         "risk_level": "HIGH" if proba >= 0.6 else "MEDIUM" if proba >= 0.3 else "LOW"
     }
+
+    log_prediction(record, result, source=source)  # ADD THIS LINE
+
+    return result
+
 
 def add_derived_features(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()

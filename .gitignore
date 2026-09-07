@@ -8,3 +8,4 @@ flagged/
 paypal_smb_eu_churn.csv
 !src/serving/model/preprocessing.pkl
 notebooks/mlflow.db
+data/logs/
