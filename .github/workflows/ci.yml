@@ -49,16 +49,20 @@ jobs:
           pytest tests/ -v
 
       # ============================================================
-      # 6. RUN ML PIPELINE (preprocess -> features -> train)
+      # 6. RUN ML PIPELINE (preprocess -> features -> train -> tune)
       # ============================================================
       - name: Run preprocessing and feature engineering
         run: |
           python -m src.data.preprocess
           python -m src.features.build_features
 
-      - name: Train model
+      - name: Train baseline model
         run: |
           python -m src.models.train
+
+      - name: Tune model (produces production candidate)
+        run: |
+          python -m src.models.tune
 
       # ============================================================
       # 7. MODEL QUALITY GATE
