@@ -9,3 +9,5 @@ paypal_smb_eu_churn.csv
 !src/serving/model/preprocessing.pkl
 notebooks/mlflow.db
 data/logs/
+mlflow.db
+data/processed/scored_accounts.csv

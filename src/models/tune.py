@@ -80,17 +80,32 @@ def tune_and_train():
     return final_model, metrics, best_params
 
 if __name__ == "__main__":
-    model, metrics, best_params = tune_and_train()
+    import mlflow
+    import mlflow.xgboost
 
-    os.makedirs("artifacts", exist_ok=True)
-    model.save_model(MODEL_PATH)  # overwrites baseline model with tuned candidate
+    mlflow.set_tracking_uri("sqlite:///mlflow.db")
+    mlflow.set_experiment("paypal-smb-churn")
 
-    with open(METRICS_PATH, "w") as f:
-        json.dump(metrics, f, indent=2)
+    with mlflow.start_run(run_name="tuned_xgboost"):
+        model, metrics, best_params = tune_and_train()
 
-    with open("artifacts/best_params.json", "w") as f:
-        json.dump(best_params, f, indent=2)
+        mlflow.log_params(best_params)
+        mlflow.log_metrics(metrics)
 
-    print(f"Saved tuned model: {MODEL_PATH}")
-    print(f"Saved metrics: {METRICS_PATH}")
-    print(f"Saved best params: artifacts/best_params.json")
+        os.makedirs("artifacts", exist_ok=True)
+        model.save_model(MODEL_PATH)  # still save locally for FastAPI/Docker to use directly
+
+        with open(METRICS_PATH, "w") as f:
+            json.dump(metrics, f, indent=2)
+        with open("artifacts/best_params.json", "w") as f:
+            json.dump(best_params, f, indent=2)
+
+        # Register model in MLflow Model Registry — this is what gives us versioning
+        model_info = mlflow.xgboost.log_model(
+            model, "model", registered_model_name="paypal-smb-churn"
+        )
+
+        print(f"Saved tuned model: {MODEL_PATH}")
+        print(f"Saved metrics: {METRICS_PATH}")
+        print(f"Saved best params: artifacts/best_params.json")
+        print(f"Registered in MLflow as: paypal-smb-churn, run_id={mlflow.active_run().info.run_id}")

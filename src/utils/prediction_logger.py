@@ -2,7 +2,7 @@
 Prediction Logging — PayPal SMB EU Churn
 Appends every prediction (API, Gradio, or batch) to a persistent log.
 This log is the data source for drift detection, the model health dashboard,
-and eventually the feedback loop (Step 7).
+and eventually the feedback loop.
 """
 import pandas as pd
 import os
@@ -20,10 +20,6 @@ LOG_COLUMNS = [
 ]
 
 def log_prediction(record: dict, result: dict, source: str, model_version: str = "v1_tuned"):
-    """
-    Appends one prediction to the log. Called after every predict_churn() call.
-    source: 'api', 'gradio', or 'batch' — tells us where the prediction came from.
-    """
     os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
 
     row = {
