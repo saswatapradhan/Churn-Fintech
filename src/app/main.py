@@ -1,10 +1,30 @@
-"""FastAPI app exposing /predict for PayPal SMB EU Churn model."""
-"""FastAPI app exposing /predict for PayPal SMB EU Churn model."""
-from fastapi import FastAPI
+"""FastAPI app exposing /predict for PayPal SMB EU Churn model. Hardened with API key auth + rate limiting."""
+import os
+from fastapi import FastAPI, Depends, HTTPException, Request, Security
+from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, Field
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from src.serving.inference import predict_churn
 
-app = FastAPI(title="PayPal SMB EU Churn Prediction API", version="1.0")
+# ---------------- API Key Setup ----------------
+# In production, this comes from a secrets manager (AWS Secrets Manager, etc.),
+# not an env var default — the fallback here is ONLY for local dev convenience.
+API_KEY = os.environ.get("CHURN_API_KEY", "dev-local-key-change-me")
+api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
+
+def verify_api_key(key: str = Security(api_key_header)):
+    if key != API_KEY:
+        raise HTTPException(status_code=401, detail="Invalid or missing API key")
+    return key
+
+# ---------------- Rate Limiter Setup ----------------
+limiter = Limiter(key_func=get_remote_address)
+
+app = FastAPI(title="PayPal SMB EU Churn Prediction API", version="1.1")
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 class SMBAccount(BaseModel):
     account_id: str
@@ -27,6 +47,7 @@ def root():
     return {"status": "ok", "message": "PayPal SMB EU Churn API is running"}
 
 @app.post("/predict")
-def predict(account: SMBAccount):
-    result = predict_churn(account.model_dump())
+@limiter.limit("30/minute")  # generous for a Sales tool, tight enough to stop abuse
+def predict(request: Request, account: SMBAccount, api_key: str = Depends(verify_api_key)):
+    result = predict_churn(account.model_dump(), source="api")
     return {"account_id": account.account_id, **result}

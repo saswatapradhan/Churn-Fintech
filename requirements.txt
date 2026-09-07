@@ -31,7 +31,8 @@ debugpy==1.8.21
 defusedxml==0.7.1
 docker==7.2.0
 executing==2.2.1
-fastapi==0.115.0
+fastapi
+slowapi
 fastjsonschema==2.22.2
 ffmpy==1.0.0
 filelock==3.32.5
