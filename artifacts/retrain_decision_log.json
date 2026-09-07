@@ -1,0 +1,9 @@
+{
+  "retrain_needed": false,
+  "reasons": [],
+  "drift_available": true,
+  "realized_performance_available": true,
+  "checked_at": "2026-09-07T18:54:39.463660+00:00",
+  "retrain_executed": false,
+  "retrain_succeeded": null
+}

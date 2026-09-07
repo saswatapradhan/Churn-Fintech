@@ -1,0 +1,13 @@
+{
+  "is_simulated": true,
+  "analyzed_at": "2026-09-07T19:07:23.070877+00:00",
+  "treatment_group_size": 562,
+  "control_group_size": 596,
+  "treatment_churn_rate": 0.694,
+  "control_churn_rate": 0.7332,
+  "relative_churn_reduction": 0.0536,
+  "z_statistic": -1.4783,
+  "p_value": 0.1393,
+  "statistically_significant": false,
+  "conclusion": "No statistically significant effect detected \u2014 insufficient evidence that outreach changes churn outcomes at current sample size."
+}

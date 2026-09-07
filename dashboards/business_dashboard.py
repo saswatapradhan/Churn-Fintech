@@ -12,8 +12,13 @@ st.set_page_config(page_title="PayPal SMB EU Churn — Sales Dashboard", layout=
 
 @st.cache_data
 def load_data():
-    return pd.read_csv("data/processed/scored_accounts.csv")
+    path = "data/processed/scored_accounts.csv"
+    if not os.path.exists(path):
+        st.error("No scored data found. This should be generated automatically on deploy.")
+        st.stop()
+    return pd.read_csv(path)
 
+import os
 df = load_data()
 
 st.title("PayPal SMB EU Churn — Database Marketing Dashboard")

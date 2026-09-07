@@ -11,3 +11,5 @@ notebooks/mlflow.db
 data/logs/
 mlflow.db
 data/processed/scored_accounts.csv
+artifacts/drift_report.html
+data/processed/ab_test_assignments.csv

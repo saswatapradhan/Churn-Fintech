@@ -1,0 +1,19 @@
+{
+  "drifted_column_count": 0.0,
+  "drifted_column_share": 0.0,
+  "dataset_drift_detected": false,
+  "per_column_drift_scores": {
+    "account_age_months": 0.015044985424825297,
+    "monthly_tpv": 0.04944951190474397,
+    "tpv_trend_3m_pct": 0.03461257409611547,
+    "txn_count_monthly": 0.029339975462298634,
+    "avg_ticket_size": 0.02150275677235076,
+    "login_freq_monthly": 0.03385380228178709,
+    "failed_txn_ratio": 0.026124676442872845,
+    "num_products_used": 0.010298319886582743,
+    "disputes_90d": 0.015365175151010678,
+    "chargebacks_90d": 0.015440188451837535,
+    "support_tickets_90d": 0.01024147155825104
+  },
+  "report_path": "artifacts/drift_report.html"
+}

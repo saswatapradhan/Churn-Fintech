@@ -1,0 +1,8 @@
+{
+  "is_simulated": true,
+  "evaluated_at": "2026-09-07T18:50:56.948190+00:00",
+  "n_predictions_evaluated": 1,
+  "realized_precision": 1.0,
+  "realized_recall": 1.0,
+  "realized_f1": 1.0
+}
