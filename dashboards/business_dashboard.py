@@ -8,15 +8,18 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 st.set_page_config(page_title="PayPal SMB EU Churn — Sales Dashboard", layout="wide")
 
-@st.cache_data
+from src.utils.s3_helper import download_dataframe_from_s3
+
+@st.cache_data(ttl=300)  # refresh from S3 every 5 minutes, not just on restart
 def load_data():
-    path = "data/processed/scored_accounts.csv"
-    if not os.path.exists(path):
-        st.error("No scored data found. This should be generated automatically on deploy.")
-        st.stop()
-    return pd.read_csv(path)
+    return download_dataframe_from_s3("scored_accounts/latest.csv")
+
 
 import os
 df = load_data()
