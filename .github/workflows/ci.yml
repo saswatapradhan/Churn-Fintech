@@ -5,9 +5,13 @@ on:
     branches:
       - main
 
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: paypal-smb-churn-api
+
 jobs:
   build-test-push:
-    name: Test, Build and Push Docker Image
+    name: Test, Build and Push Docker Image to ECR
     runs-on: ubuntu-latest
 
     steps:
@@ -45,6 +49,8 @@ jobs:
       # 5. RUN AUTOMATED TESTS
       # ============================================================
       - name: Run tests
+        env:
+          CHURN_API_KEY: dev-local-key-change-me
         run: |
           pytest tests/ -v
 
@@ -72,22 +78,30 @@ jobs:
           python scripts/model_quality_gate.py
 
       # ============================================================
-      # 8. SETUP DOCKER BUILDX
+      # 8. CONFIGURE AWS CREDENTIALS
+      # ============================================================
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # ============================================================
+      # 9. LOGIN TO AMAZON ECR
+      # ============================================================
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # ============================================================
+      # 10. SETUP DOCKER BUILDX
       # ============================================================
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       # ============================================================
-      # 9. LOGIN TO DOCKER HUB
-      # ============================================================
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      # ============================================================
-      # 10. BUILD AND PUSH DOCKER IMAGE
+      # 11. BUILD AND PUSH DOCKER IMAGE TO ECR
       # ============================================================
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
@@ -95,12 +109,6 @@ jobs:
           context: .
           file: ./dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/paypal-smb-churn-fastapi:latest
+          tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      # ============================================================
-      # 11. LOGOUT
-      # ============================================================
-      - name: Logout from Docker Hub
-        run: docker logout
