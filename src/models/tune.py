@@ -1,16 +1,19 @@
-"""Optuna hyperparameter tuning. (Model Tuning step)"""
 """
 Hyperparameter Tuning — PayPal SMB EU Churn
 Runs Optuna to maximize recall (catching churners matters most for early warning),
 then retrains XGBoost with the best params and saves it as the candidate model.
+Logs to MLflow backed by a real Postgres RDS instance (not local SQLite).
 """
 import pandas as pd
 import json
 import os
 import optuna
+from dotenv import load_dotenv
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score, classification_report
 from xgboost import XGBClassifier
+
+load_dotenv()
 
 FEATURES_PATH = "data/processed/paypal_smb_eu_churn_features.csv"
 MODEL_PATH = "src/serving/model/model.xgb"
@@ -79,11 +82,17 @@ def tune_and_train():
     print("Final tuned metrics:", metrics)
     return final_model, metrics, best_params
 
+def get_mlflow_tracking_uri() -> str:
+    return (
+        f"postgresql://{os.environ['MLFLOW_DB_USER']}:{os.environ['MLFLOW_DB_PASSWORD']}"
+        f"@{os.environ['MLFLOW_DB_HOST']}:{os.environ['MLFLOW_DB_PORT']}/{os.environ['MLFLOW_DB_NAME']}"
+    )
+
 if __name__ == "__main__":
     import mlflow
     import mlflow.xgboost
 
-    mlflow.set_tracking_uri("sqlite:///mlflow.db")
+    mlflow.set_tracking_uri(get_mlflow_tracking_uri())
     mlflow.set_experiment("paypal-smb-churn")
 
     with mlflow.start_run(run_name="tuned_xgboost"):
