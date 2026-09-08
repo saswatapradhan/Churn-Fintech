@@ -86,10 +86,12 @@ st.divider()
 # ---------------- Section 3: Data Drift ----------------
 st.header("3. Data Drift Status")
 
-if os.path.exists(DRIFT_SUMMARY_PATH):
-    with open(DRIFT_SUMMARY_PATH) as f:
-        drift = json.load(f)
+from src.utils.s3_helper import download_json_from_s3, file_exists_in_s3
 
+if file_exists_in_s3("drift/latest_summary.json"):
+    drift = download_json_from_s3("drift/latest_summary.json")
+
+    
     col1, col2, col3 = st.columns(3)
     col1.metric("Drifted Columns", f"{int(drift['drifted_column_count'])}")
     col2.metric("Drifted Share", f"{drift['drifted_column_share']:.1%}")

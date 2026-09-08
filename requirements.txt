@@ -195,3 +195,5 @@ widgetsnbextension==4.0.16
 wrapt==2.4.0
 xgboost==2.1.1
 zipp==4.1.0
+boto3
+python-dotenv

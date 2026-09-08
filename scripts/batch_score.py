@@ -10,6 +10,7 @@ import json
 from datetime import datetime, timezone
 from xgboost import XGBClassifier
 from src.features.build_features import add_derived_features
+from src.utils.s3_helper import upload_dataframe_to_s3
 
 RAW_PATH = "data/raw/paypal_smb_eu_churn_raw.csv"
 MODEL_PATH = "src/serving/model/model.xgb"
@@ -69,6 +70,12 @@ if __name__ == "__main__":
     scored_df = score_portfolio()
     scored_df.to_csv(OUTPUT_PATH, index=False)
 
+    scored_df = score_portfolio()
+    scored_df.to_csv(OUTPUT_PATH, index=False)
+    upload_dataframe_to_s3(scored_df, "scored_accounts/latest.csv")  # ADD THIS LINE
+
+
+
     summary = {
         "total_accounts_scored": len(scored_df),
         "high_risk_count": int((scored_df["risk_level"] == "HIGH").sum()),
@@ -79,6 +86,10 @@ if __name__ == "__main__":
         ),
         "scored_at": scored_df["scored_at"].iloc[0]
     }
+
+
+
+    
 
     print(json.dumps(summary, indent=2))
     print(f"\nSaved: {OUTPUT_PATH}")

@@ -9,6 +9,7 @@ import pandas as pd
 from evidently import Report
 from evidently.presets import DataDriftPreset
 import json
+from src.utils.s3_helper import upload_json_to_s3
 
 REFERENCE_PATH = "data/raw/paypal_smb_eu_churn_raw.csv"  # training-time data
 CURRENT_PATH = "data/processed/scored_accounts.csv"       # latest live-scored data
@@ -57,6 +58,7 @@ def run_drift_check():
     
     with open(OUTPUT_JSON, "w") as f:
         json.dump(drift_summary, f, indent=2)
+    upload_json_to_s3(drift_summary, "drift/latest_summary.json")  # ADD THIS LINE
 
     print(json.dumps(drift_summary, indent=2))
     print(f"Full HTML report saved to: {OUTPUT_HTML}")
