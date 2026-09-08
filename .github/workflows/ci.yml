@@ -67,9 +67,15 @@ jobs:
           python -m src.models.train
 
       - name: Tune model (produces production candidate)
+        env:
+          MLFLOW_DB_HOST: ${{ secrets.MLFLOW_DB_HOST }}
+          MLFLOW_DB_PORT: ${{ secrets.MLFLOW_DB_PORT }}
+          MLFLOW_DB_NAME: ${{ secrets.MLFLOW_DB_NAME }}
+          MLFLOW_DB_USER: ${{ secrets.MLFLOW_DB_USER }}
+          MLFLOW_DB_PASSWORD: ${{ secrets.MLFLOW_DB_PASSWORD }}
         run: |
           python -m src.models.tune
-
+          
       # ============================================================
       # 7. MODEL QUALITY GATE
       # ============================================================
