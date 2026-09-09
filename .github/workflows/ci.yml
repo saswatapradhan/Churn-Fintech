@@ -73,8 +73,13 @@ jobs:
           MLFLOW_DB_NAME: ${{ secrets.MLFLOW_DB_NAME }}
           MLFLOW_DB_USER: ${{ secrets.MLFLOW_DB_USER }}
           MLFLOW_DB_PASSWORD: ${{ secrets.MLFLOW_DB_PASSWORD }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
+          S3_BUCKET_NAME: paypal-smb-churn-ml
         run: |
           python -m src.models.tune
+          
           
       # ============================================================
       # 7. MODEL QUALITY GATE
