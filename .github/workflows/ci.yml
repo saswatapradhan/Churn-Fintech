@@ -123,3 +123,13 @@ jobs:
           tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      # ============================================================
+      # 12. FORCE ECS SERVICE TO DEPLOY THE NEW IMAGE
+      # ============================================================
+      - name: Deploy new image to ECS
+        run: |
+          aws ecs update-service \
+            --cluster paypal-smb-churn-cluster \
+            --service paypal-smb-churn-api-service \
+            --force-new-deployment \
+            --region us-east-1
