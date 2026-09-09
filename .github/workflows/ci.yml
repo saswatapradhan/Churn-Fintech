@@ -133,3 +133,17 @@ jobs:
             --service paypal-smb-churn-api-service \
             --force-new-deployment \
             --region us-east-1
+      # ============================================================
+      # 13. VALIDATE ALL REQUIREMENTS FILES INSTALL CLEANLY
+      # ============================================================
+      - name: Validate requirements-docker.txt installs cleanly
+        run: |
+          python -m venv /tmp/venv-docker
+          /tmp/venv-docker/bin/pip install --upgrade pip
+          /tmp/venv-docker/bin/pip install -r requirements-docker.txt
+
+      - name: Validate requirements-dashboard.txt installs cleanly
+        run: |
+          python -m venv /tmp/venv-dashboard
+          /tmp/venv-dashboard/bin/pip install --upgrade pip
+          /tmp/venv-dashboard/bin/pip install -r requirements-dashboard.txt
