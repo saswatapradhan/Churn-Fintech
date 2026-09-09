@@ -198,3 +198,4 @@ zipp==4.1.0
 boto3
 python-dotenv
 psycopg2-binary
+evidently==0.7.21
