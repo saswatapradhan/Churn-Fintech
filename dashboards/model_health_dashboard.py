@@ -8,9 +8,14 @@ import streamlit as st
 import pandas as pd
 import json
 import os
+import sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import plotly.express as px
 import mlflow
 from mlflow import MlflowClient
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 st.set_page_config(page_title="Model Health — PayPal SMB Churn", layout="wide")
 st.title("Model Health Dashboard — PayPal SMB EU Churn")
@@ -23,7 +28,11 @@ DRIFT_REPORT_PATH = "artifacts/drift_report.html"
 st.header("1. Production Model Status")
 
 try:
-    mlflow.set_tracking_uri("sqlite:///mlflow.db")
+    db_uri = (
+    f"postgresql://{os.environ['MLFLOW_DB_USER']}:{os.environ['MLFLOW_DB_PASSWORD']}"
+    f"@{os.environ['MLFLOW_DB_HOST']}:{os.environ['MLFLOW_DB_PORT']}/{os.environ['MLFLOW_DB_NAME']}"
+            )
+    mlflow.set_tracking_uri(db_uri)
     client = MlflowClient()
     prod_versions = client.get_latest_versions("paypal-smb-churn", stages=["Production"])
 
