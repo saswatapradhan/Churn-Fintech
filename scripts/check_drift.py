@@ -5,6 +5,7 @@ data (current) to detect if incoming SMB accounts look statistically
 different from what the model was trained on.
 Run this on a schedule (e.g. weekly) against your latest batch-scored data.
 """
+import os
 import pandas as pd
 from evidently import Report
 from evidently.presets import DataDriftPreset
@@ -37,6 +38,7 @@ def run_drift_check():
     report = Report(metrics=[DataDriftPreset()])
     result = report.run(reference_data=reference, current_data=current)
 
+    os.makedirs(os.path.dirname(OUTPUT_HTML), exist_ok=True)
     result.save_html(OUTPUT_HTML)
 
     result_dict = result.dict()
@@ -55,10 +57,11 @@ def run_drift_check():
         "per_column_drift_scores": per_column_drift,
         "report_path": OUTPUT_HTML
     }
-    
+
+    os.makedirs(os.path.dirname(OUTPUT_JSON), exist_ok=True)
     with open(OUTPUT_JSON, "w") as f:
         json.dump(drift_summary, f, indent=2)
-    upload_json_to_s3(drift_summary, "drift/latest_summary.json")  # ADD THIS LINE
+    upload_json_to_s3(drift_summary, "drift/latest_summary.json")
 
     print(json.dumps(drift_summary, indent=2))
     print(f"Full HTML report saved to: {OUTPUT_HTML}")

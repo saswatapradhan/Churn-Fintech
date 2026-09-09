@@ -67,15 +67,13 @@ def score_portfolio() -> pd.DataFrame:
     return results
 
 if __name__ == "__main__":
+    import os
     scored_df = score_portfolio()
+    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
     scored_df.to_csv(OUTPUT_PATH, index=False)
+    upload_dataframe_to_s3(scored_df, "scored_accounts/latest.csv")
 
-    scored_df = score_portfolio()
-    scored_df.to_csv(OUTPUT_PATH, index=False)
-    upload_dataframe_to_s3(scored_df, "scored_accounts/latest.csv")  # ADD THIS LINE
-
-
-
+    
     summary = {
         "total_accounts_scored": len(scored_df),
         "high_risk_count": int((scored_df["risk_level"] == "HIGH").sum()),
