@@ -16,6 +16,7 @@ from mlflow import MlflowClient
 import os
 from dotenv import load_dotenv
 load_dotenv()
+from src.utils.prediction_logger import read_log
 
 st.set_page_config(page_title="Model Health — PayPal SMB Churn", layout="wide")
 st.title("Model Health Dashboard — PayPal SMB EU Churn")
@@ -52,8 +53,10 @@ st.divider()
 # ---------------- Section 2: Prediction Volume & Distribution ----------------
 st.header("2. Prediction Activity")
 
-if os.path.exists(LOG_PATH):
-    log_df = pd.read_csv(LOG_PATH)
+
+log_df = read_log()
+
+if not log_df.empty:
     log_df["logged_at"] = pd.to_datetime(log_df["logged_at"])
 
     col1, col2, col3 = st.columns(3)
