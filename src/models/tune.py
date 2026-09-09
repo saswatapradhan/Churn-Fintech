@@ -8,6 +8,7 @@ import pandas as pd
 import json
 import os
 import optuna
+
 from dotenv import load_dotenv
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score, classification_report
@@ -91,10 +92,13 @@ def get_mlflow_tracking_uri() -> str:
 if __name__ == "__main__":
     import mlflow
     import mlflow.xgboost
-
     mlflow.set_tracking_uri(get_mlflow_tracking_uri())
-    mlflow.set_experiment("paypal-smb-churn")
 
+    experiment_name = "paypal-smb-churn-v2"
+    experiment = mlflow.get_experiment_by_name(experiment_name)
+    if experiment is None:
+        mlflow.create_experiment(experiment_name, artifact_location="./mlartifacts")
+    mlflow.set_experiment(experiment_name)
     with mlflow.start_run(run_name="tuned_xgboost"):
         model, metrics, best_params = tune_and_train()
 
