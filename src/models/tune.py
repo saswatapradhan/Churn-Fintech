@@ -93,12 +93,15 @@ if __name__ == "__main__":
     import mlflow
     import mlflow.xgboost
     mlflow.set_tracking_uri(get_mlflow_tracking_uri())
-
-    experiment_name = "paypal-smb-churn-v2"
+    
+    experiment_name = "paypal-smb-churn-s3"
     experiment = mlflow.get_experiment_by_name(experiment_name)
     if experiment is None:
-        mlflow.create_experiment(experiment_name, artifact_location="./mlartifacts")
-    mlflow.set_experiment(experiment_name)
+        mlflow.create_experiment(
+            experiment_name,
+            artifact_location=f"s3://{os.environ['S3_BUCKET_NAME']}/mlflow-artifacts"
+        )
+    mlflow.set_experiment(experiment_name)   
     with mlflow.start_run(run_name="tuned_xgboost"):
         model, metrics, best_params = tune_and_train()
 
